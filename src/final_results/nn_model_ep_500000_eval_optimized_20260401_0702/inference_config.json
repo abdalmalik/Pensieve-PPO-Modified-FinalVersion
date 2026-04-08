@@ -1,0 +1,8 @@
+﻿{
+  "model_path": ".\\ppo\\nn_model_ep_500000.pth",
+  "policy": "safe-step",
+  "buffer_reserve": 5.0,
+  "min_safety_budget": 2.0,
+  "max_upstep": 1,
+  "notes": "Deterministic PPO inference with throughput-buffer safety cap and limited upward jumps."
+}

@@ -1,0 +1,17 @@
+﻿Comparison vs previous evaluation (same model, previous test policy)
+===============================================================
+Previous mean QoE : 0.773300
+Optimized mean QoE: 0.868309
+Delta            : +0.095009 (+12.29%)
+
+Previous P5 QoE  : 0.024980
+Optimized P5 QoE : 0.300059
+Delta            : +0.275079
+
+Previous avg rebuffer seconds : 4.940511
+Optimized avg rebuffer seconds: 4.434136
+Delta                        : -0.506375 (-10.25%)
+
+Previous avg smoothness Mbps : 0.273202
+Optimized avg smoothness Mbps: 0.218445
+Delta                        : -0.054757 (-20.04%)

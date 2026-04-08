@@ -1,0 +1,8 @@
+run = "python run_replit.py"
+
+[deployment]
+run = ["python", "run_replit.py"]
+deploymentTarget = "autoscale"
+
+[env]
+PORT = "8000"

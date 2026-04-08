@@ -1,0 +1,9 @@
+﻿========================================
+FINAL TRAINING CHECKPOINT (UPDATED)
+========================================
+Date: 03/22/2026 19:18:37
+Last Epoch: 99900
+Model Path: .\ppo\nn_model_ep_99900.pth
+REBUF_PENALTY: 5.5
+SMOOTH_PENALTY: 0.8
+========================================

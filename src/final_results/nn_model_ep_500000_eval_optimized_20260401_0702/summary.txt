@@ -1,0 +1,37 @@
+Pensieve PPO Evaluation Summary
+========================================
+Model: .\ppo\nn_model_ep_500000.pth
+Trace count: 142
+
+QoE
+  Mean   : 0.868309
+  Median : 0.718085
+  Std    : 0.635344
+  Min    : -1.593414
+  P5     : 0.300059
+  P95    : 1.938511
+  Max    : 3.554255
+
+Bitrate
+  Avg Mbps: 1.113637
+  Min Mbps: 0.421875
+  Max Mbps: 3.569792
+
+Rebuffer
+  Avg total seconds : 4.434136
+  Median total secs : 3.984967
+  Avg ratio percent : 2.232773
+
+Smoothness
+  Avg Mbps: 0.218445
+
+Average buffer
+  Avg seconds: 14.463648
+
+By network type
+  bus: traces=23, mean_qoe=1.601704, avg_bitrate=1.801042, avg_rebuffer=2.730914, avg_smoothness=0.207216
+  car: traces=12, mean_qoe=0.761542, avg_bitrate=1.216146, avg_rebuffer=5.172104, avg_smoothness=0.243528
+  ferry: traces=20, mean_qoe=0.979325, avg_bitrate=1.236146, avg_rebuffer=3.864538, avg_smoothness=0.207926
+  metro: traces=10, mean_qoe=0.752021, avg_bitrate=0.966563, avg_rebuffer=3.885654, avg_smoothness=0.219149
+  train: traces=21, mean_qoe=1.061398, avg_bitrate=1.261855, avg_rebuffer=3.726720, avg_smoothness=0.211348
+  tram: traces=56, mean_qoe=0.498681, avg_bitrate=0.736272, avg_rebuffer=5.542189, avg_smoothness=0.223974

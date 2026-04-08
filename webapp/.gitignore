@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.log
+*.err
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+frontend/node_modules/
+frontend/dist/
+npm-debug.log*
+yarn-error.log*
