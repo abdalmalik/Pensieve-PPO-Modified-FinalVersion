@@ -280,10 +280,10 @@ def main() -> None:
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     write_summary_text(output_dir / "summary.txt", summary, trace_group_rows)
     write_csv(output_dir / "per_trace_metrics.csv", trace_metrics)
-    write_csv(output_dir / "by_network_type.csv", trace_group_rows)
+    write_csv(output_dir / "by_trace_group.csv", trace_group_rows)
     plot_qoe_distribution(trace_metrics, output_dir / "qoe_distribution.png")
-    plot_trace_group_qoe(trace_group_rows, output_dir / "qoe_by_network_type.png")
-    plot_trace_group_rebuffer(trace_group_rows, output_dir / "rebuffer_by_network_type.png")
+    plot_trace_group_qoe(trace_group_rows, output_dir / "qoe_by_trace_group.png")
+    plot_trace_group_rebuffer(trace_group_rows, output_dir / "rebuffer_by_trace_group.png")
 
     if args.copy_logs:
         copy_raw_logs(input_dir, output_dir)

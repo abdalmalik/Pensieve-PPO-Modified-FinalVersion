@@ -19,7 +19,7 @@ def parse_args():
     )
     parser.add_argument(
         "--output-path",
-        default="final_results/performance_by_network.png",
+        default="final_results/performance_by_trace_group.png",
         help="Path where the summary figure will be saved.",
     )
     return parser.parse_args()

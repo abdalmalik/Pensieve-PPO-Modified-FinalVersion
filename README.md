@@ -69,7 +69,7 @@ For transparency, the repository keeps both QoE distribution plots below:
 The second figure is the one adopted in this README because it is aligned with the aggregated outputs in `summary.txt` and `summary.json`, reflects the per-trace evaluation results used in the published report, and gives a more representative picture of typical model behavior instead of letting a small number of extreme negative sessions dominate the visual interpretation.
 
 <p align="center">
-  <img src="src/final_results/performance_by_network.png" alt="Performance by trace group" width="60%" />
+  <img src="src/final_results/performance_by_trace_group.png" alt="Performance by trace group" width="60%" />
 </p>
 
 ## Repository Layout
@@ -153,10 +153,10 @@ Generated outputs include:
 - `summary.txt`
 - `summary.json`
 - `per_trace_metrics.csv`
-- `by_network_type.csv`
+- `by_trace_group.csv`
 - `qoe_distribution.png`
-- `qoe_by_network_type.png`
-- `rebuffer_by_network_type.png`
+- `qoe_by_trace_group.png`
+- `rebuffer_by_trace_group.png`
 
 ### 3. Start training from scratch
 
@@ -188,7 +188,7 @@ python plot_comparison.py
 - State shape: `6 x 8`
 - Action space: 6 bitrate choices
 - Optimizer learning rate: `1e-4`
-- Default evaluation traces are organized into six neutral trace groups derived from the packaged fixed traces
+- Default evaluation traces span multiple network condition groups represented by six neutral trace groups
 
 The included evaluation script exposes a conservative `safe-step` policy layer that constrains risky bitrate jumps using buffer-aware safety checks. That is the default mode used in the latest published evaluation summary.
 
@@ -198,7 +198,7 @@ Key repository assets already committed:
 
 - `src/ppo/nn_model_ep_500000.pth`
 - `src/final_results/nn_model_ep_500000_eval_optimized_20260401_0702/`
-- `src/final_results/performance_by_network.png`
+- `src/final_results/performance_by_trace_group.png`
 - `src/final_results/comparison_boxplot.png`
 - `src/final_results/baselines-*.png`
 
