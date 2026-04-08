@@ -1,6 +1,6 @@
 Pensieve PPO Evaluation Summary
 ========================================
-Model: .\ppo\nn_model_ep_500000.pth
+Model: ./ppo/nn_model_ep_500000.pth
 Trace count: 142
 
 QoE
@@ -28,10 +28,10 @@ Smoothness
 Average buffer
   Avg seconds: 14.463648
 
-By network type
-  bus: traces=23, mean_qoe=1.601704, avg_bitrate=1.801042, avg_rebuffer=2.730914, avg_smoothness=0.207216
-  car: traces=12, mean_qoe=0.761542, avg_bitrate=1.216146, avg_rebuffer=5.172104, avg_smoothness=0.243528
-  ferry: traces=20, mean_qoe=0.979325, avg_bitrate=1.236146, avg_rebuffer=3.864538, avg_smoothness=0.207926
-  metro: traces=10, mean_qoe=0.752021, avg_bitrate=0.966563, avg_rebuffer=3.885654, avg_smoothness=0.219149
-  train: traces=21, mean_qoe=1.061398, avg_bitrate=1.261855, avg_rebuffer=3.726720, avg_smoothness=0.211348
-  tram: traces=56, mean_qoe=0.498681, avg_bitrate=0.736272, avg_rebuffer=5.542189, avg_smoothness=0.223974
+By trace group
+  trace_group_01: traces=23, mean_qoe=1.601704, avg_bitrate=1.801042, avg_rebuffer=2.730914, avg_smoothness=0.207216
+  trace_group_02: traces=12, mean_qoe=0.761542, avg_bitrate=1.216146, avg_rebuffer=5.172104, avg_smoothness=0.243528
+  trace_group_03: traces=20, mean_qoe=0.979325, avg_bitrate=1.236146, avg_rebuffer=3.864538, avg_smoothness=0.207926
+  trace_group_04: traces=10, mean_qoe=0.752021, avg_bitrate=0.966563, avg_rebuffer=3.885654, avg_smoothness=0.219149
+  trace_group_05: traces=21, mean_qoe=1.061398, avg_bitrate=1.261855, avg_rebuffer=3.726720, avg_smoothness=0.211348
+  trace_group_06: traces=56, mean_qoe=0.498681, avg_bitrate=0.736272, avg_rebuffer=5.542189, avg_smoothness=0.223974

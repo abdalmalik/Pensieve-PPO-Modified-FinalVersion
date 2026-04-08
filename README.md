@@ -25,7 +25,7 @@ The repository is intended to be reproducible and presentation-ready: you can in
 - CPU-first execution by default (`CUDA_VISIBLE_DEVICES=-1` in the scripts)
 - 6-action bitrate ladder: `300, 750, 1200, 1850, 2850, 4300 Kbps`
 - Multiple inference modes for evaluation: `legacy-gumbel`, `argmax`, and `safe-step`
-- Ready-made reporting workflow for per-trace metrics, network-type summaries, and plots
+- Ready-made reporting workflow for per-trace metrics, trace-group summaries, and plots
 
 ## Results Snapshot
 
@@ -69,7 +69,7 @@ For transparency, the repository keeps both QoE distribution plots below:
 The second figure is the one adopted in this README because it is aligned with the aggregated outputs in `summary.txt` and `summary.json`, reflects the per-trace evaluation results used in the published report, and gives a more representative picture of typical model behavior instead of letting a small number of extreme negative sessions dominate the visual interpretation.
 
 <p align="center">
-  <img src="src/final_results/performance_by_network.png" alt="Performance by network type" width="60%" />
+  <img src="src/final_results/performance_by_network.png" alt="Performance by trace group" width="60%" />
 </p>
 
 ## Repository Layout
@@ -188,7 +188,7 @@ python plot_comparison.py
 - State shape: `6 x 8`
 - Action space: 6 bitrate choices
 - Optimizer learning rate: `1e-4`
-- Default evaluation traces cover six network types: `bus`, `car`, `ferry`, `metro`, `train`, and `tram`
+- Default evaluation traces are organized into six neutral trace groups derived from the packaged fixed traces
 
 The included evaluation script exposes a conservative `safe-step` policy layer that constrains risky bitrate jumps using buffer-aware safety checks. That is the default mode used in the latest published evaluation summary.
 

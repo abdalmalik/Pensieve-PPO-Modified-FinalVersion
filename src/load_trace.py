@@ -5,12 +5,16 @@ COOKED_TRACE_FOLDER = './train/'
 
 
 def load_trace(cooked_trace_folder=COOKED_TRACE_FOLDER):
-    cooked_files = os.listdir(cooked_trace_folder)
+    cooked_files = sorted(
+        file_name
+        for file_name in os.listdir(cooked_trace_folder)
+        if os.path.isfile(os.path.join(cooked_trace_folder, file_name))
+    )
     all_cooked_time = []
     all_cooked_bw = []
     all_file_names = []
     for cooked_file in cooked_files:
-        file_path = cooked_trace_folder + cooked_file
+        file_path = os.path.join(cooked_trace_folder, cooked_file)
         cooked_time = []
         cooked_bw = []
         # print file_path

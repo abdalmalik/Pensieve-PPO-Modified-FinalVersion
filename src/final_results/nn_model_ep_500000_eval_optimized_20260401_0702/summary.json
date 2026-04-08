@@ -1,5 +1,5 @@
 {
-  "model_path": ".\\ppo\\nn_model_ep_500000.pth",
+  "model_path": "./ppo/nn_model_ep_500000.pth",
   "trace_count": 142,
   "qoe": {
     "mean": 0.8683092691333155,

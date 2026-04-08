@@ -1,5 +1,6 @@
 import argparse
 import os
+from pathlib import Path
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -22,13 +23,23 @@ REBUF_PENALTY = 4.3
 SMOOTH_PENALTY = 1
 DEFAULT_QUALITY = 1
 RANDOM_SEED = 42
-LOG_FILE = "./test_results/log_sim_ppo"
+LOG_FILE_PREFIX = "log_sim_ppo"
 TEST_TRACES = "./test/"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Evaluate a Pensieve PPO checkpoint on fixed test traces.")
     parser.add_argument("nn_model", help="Path to the .pth checkpoint to evaluate.")
+    parser.add_argument(
+        "--traces-dir",
+        default=TEST_TRACES,
+        help="Directory containing the fixed evaluation traces.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default="./test_results",
+        help="Directory where per-trace evaluation logs will be written.",
+    )
     parser.add_argument(
         "--policy",
         choices=["legacy-gumbel", "argmax", "safe-step"],
@@ -56,6 +67,10 @@ def parse_args():
     return parser.parse_args()
 
 
+def build_log_path(output_dir: Path, trace_name: str) -> Path:
+    return output_dir / f"{LOG_FILE_PREFIX}_{Path(trace_name).name}"
+
+
 def select_bitrate(policy, action_prob, state, next_video_chunk_sizes, buffer_size, last_bit_rate, buffer_reserve, min_safety_budget, max_upstep):
     if policy == "legacy-gumbel":
         noise = np.random.gumbel(size=len(action_prob))
@@ -81,11 +96,13 @@ def select_bitrate(policy, action_prob, state, next_video_chunk_sizes, buffer_si
 
 def main():
     args = parse_args()
+    output_dir = Path(args.output_dir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     np.random.seed(RANDOM_SEED)
     assert len(VIDEO_BIT_RATE) == A_DIM
 
-    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(TEST_TRACES)
+    all_cooked_time, all_cooked_bw, all_file_names = load_trace.load_trace(args.traces_dir)
     net_env = env.Environment(all_cooked_time=all_cooked_time, all_cooked_bw=all_cooked_bw)
 
     actor = network.Network(state_dim=[S_INFO, S_LEN], action_dim=A_DIM, learning_rate=ACTOR_LR_RATE)
@@ -97,8 +114,8 @@ def main():
         f"(buffer_reserve={args.buffer_reserve}, min_safety_budget={args.min_safety_budget}, max_upstep={args.max_upstep})",
     )
 
-    log_path = LOG_FILE + "_" + all_file_names[net_env.trace_idx]
-    log_file = open(log_path, "w")
+    log_path = build_log_path(output_dir, all_file_names[net_env.trace_idx])
+    log_file = log_path.open("w", encoding="utf-8")
 
     time_stamp = 0
     last_bit_rate = DEFAULT_QUALITY
@@ -192,8 +209,10 @@ def main():
             if video_count >= len(all_file_names):
                 break
 
-            log_path = LOG_FILE + "_" + all_file_names[net_env.trace_idx]
-            log_file = open(log_path, "w")
+            log_path = build_log_path(output_dir, all_file_names[net_env.trace_idx])
+            log_file = log_path.open("w", encoding="utf-8")
+
+    print(f"Saved evaluation logs to: {output_dir}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 import argparse
 import csv
 import json
+import re
 import shutil
 from collections import defaultdict
 from pathlib import Path
@@ -9,14 +10,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-NETWORK_TYPES = ["bus", "car", "ferry", "metro", "train", "tram"]
+TRACE_GROUP_PATTERN = re.compile(r"trace_group_(\d+)", re.IGNORECASE)
 
 
-def infer_network_type(name: str) -> str:
-    for network_type in NETWORK_TYPES:
-        if network_type in name:
-            return network_type
-    return "unknown"
+def infer_trace_group(name: str) -> str:
+    match = TRACE_GROUP_PATTERN.search(name)
+    if match:
+        return f"trace_group_{int(match.group(1)):02d}"
+    return "trace_group_unknown"
+
+
+def normalize_trace_name(name: str) -> str:
+    trace_name = Path(name).name
+    if trace_name.startswith("log_sim_ppo_"):
+        trace_name = trace_name[len("log_sim_ppo_"):]
+    return trace_name
 
 
 def parse_log_file(path: Path) -> dict | None:
@@ -54,8 +62,8 @@ def parse_log_file(path: Path) -> dict | None:
     total_rebuffer_s = sum(rebuffer_values)
 
     return {
-        "trace": path.name,
-        "network_type": infer_network_type(path.name),
+        "trace": normalize_trace_name(path.name),
+        "trace_group": infer_trace_group(path.name),
         "chunks": len(rows),
         "mean_qoe": float(np.mean(rewards[1:] if len(rewards) > 1 else rewards)),
         "sum_qoe": float(np.sum(rewards)),
@@ -108,17 +116,17 @@ def build_summary(trace_metrics: list[dict], model_path: str) -> dict:
     }
 
 
-def build_network_summary(trace_metrics: list[dict]) -> list[dict]:
+def build_trace_group_summary(trace_metrics: list[dict]) -> list[dict]:
     grouped: dict[str, list[dict]] = defaultdict(list)
     for metric in trace_metrics:
-        grouped[metric["network_type"]].append(metric)
+        grouped[metric["trace_group"]].append(metric)
 
-    network_rows = []
-    for network_type in sorted(grouped.keys()):
-        entries = grouped[network_type]
-        network_rows.append(
+    trace_group_rows = []
+    for trace_group in sorted(grouped.keys()):
+        entries = grouped[trace_group]
+        trace_group_rows.append(
             {
-                "network_type": network_type,
+                "trace_group": trace_group,
                 "trace_count": len(entries),
                 "mean_qoe": float(np.mean([entry["mean_qoe"] for entry in entries])),
                 "avg_bitrate_mbps": float(np.mean([entry["avg_bitrate_mbps"] for entry in entries])),
@@ -127,7 +135,7 @@ def build_network_summary(trace_metrics: list[dict]) -> list[dict]:
                 "avg_smoothness_mbps": float(np.mean([entry["avg_smoothness_mbps"] for entry in entries])),
             }
         )
-    return network_rows
+    return trace_group_rows
 
 
 def write_csv(path: Path, rows: list[dict]) -> None:
@@ -139,7 +147,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
         writer.writerows(rows)
 
 
-def write_summary_text(path: Path, summary: dict, network_rows: list[dict]) -> None:
+def write_summary_text(path: Path, summary: dict, trace_group_rows: list[dict]) -> None:
     lines = [
         "Pensieve PPO Evaluation Summary",
         "=" * 40,
@@ -171,12 +179,12 @@ def write_summary_text(path: Path, summary: dict, network_rows: list[dict]) -> N
         "Average buffer",
         f"  Avg seconds: {summary['buffer']['avg_seconds']:.6f}",
         "",
-        "By network type",
+        "By trace group",
     ]
 
-    for row in network_rows:
+    for row in trace_group_rows:
         lines.append(
-            f"  {row['network_type']}: traces={row['trace_count']}, "
+            f"  {row['trace_group']}: traces={row['trace_count']}, "
             f"mean_qoe={row['mean_qoe']:.6f}, avg_bitrate={row['avg_bitrate_mbps']:.6f}, "
             f"avg_rebuffer={row['avg_total_rebuffer_s']:.6f}, avg_smoothness={row['avg_smoothness_mbps']:.6f}"
         )
@@ -200,35 +208,37 @@ def plot_qoe_distribution(trace_metrics: list[dict], output_path: Path) -> None:
     plt.close()
 
 
-def plot_network_qoe(network_rows: list[dict], output_path: Path) -> None:
-    labels = [item["network_type"] for item in network_rows]
-    values = [item["mean_qoe"] for item in network_rows]
+def plot_trace_group_qoe(trace_group_rows: list[dict], output_path: Path) -> None:
+    labels = [item["trace_group"] for item in trace_group_rows]
+    values = [item["mean_qoe"] for item in trace_group_rows]
     plt.figure(figsize=(10, 6))
     bars = plt.bar(labels, values, color="teal", alpha=0.8, edgecolor="black")
     plt.axhline(0.75, color="crimson", linestyle="--", linewidth=2, label="Target QoE = 0.75")
     for bar, value in zip(bars, values):
         plt.text(bar.get_x() + bar.get_width() / 2, value, f"{value:.2f}", ha="center", va="bottom", fontsize=9)
-    plt.xlabel("Network type")
+    plt.xlabel("Trace group")
     plt.ylabel("Mean QoE")
-    plt.title("Average QoE by Network Type")
+    plt.title("Average QoE by Trace Group")
     plt.grid(alpha=0.25, axis="y")
+    plt.xticks(rotation=25, ha="right")
     plt.legend()
     plt.tight_layout()
     plt.savefig(output_path, dpi=180)
     plt.close()
 
 
-def plot_network_rebuffer(network_rows: list[dict], output_path: Path) -> None:
-    labels = [item["network_type"] for item in network_rows]
-    values = [item["avg_total_rebuffer_s"] for item in network_rows]
+def plot_trace_group_rebuffer(trace_group_rows: list[dict], output_path: Path) -> None:
+    labels = [item["trace_group"] for item in trace_group_rows]
+    values = [item["avg_total_rebuffer_s"] for item in trace_group_rows]
     plt.figure(figsize=(10, 6))
     bars = plt.bar(labels, values, color="darkorange", alpha=0.8, edgecolor="black")
     for bar, value in zip(bars, values):
         plt.text(bar.get_x() + bar.get_width() / 2, value, f"{value:.2f}", ha="center", va="bottom", fontsize=9)
-    plt.xlabel("Network type")
+    plt.xlabel("Trace group")
     plt.ylabel("Average total rebuffer seconds")
-    plt.title("Average Rebuffer by Network Type")
+    plt.title("Average Rebuffer by Trace Group")
     plt.grid(alpha=0.25, axis="y")
+    plt.xticks(rotation=25, ha="right")
     plt.tight_layout()
     plt.savefig(output_path, dpi=180)
     plt.close()
@@ -265,15 +275,15 @@ def main() -> None:
         raise SystemExit("No valid test logs found in the input directory.")
 
     summary = build_summary(trace_metrics, args.model_path)
-    network_rows = build_network_summary(trace_metrics)
+    trace_group_rows = build_trace_group_summary(trace_metrics)
 
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    write_summary_text(output_dir / "summary.txt", summary, network_rows)
+    write_summary_text(output_dir / "summary.txt", summary, trace_group_rows)
     write_csv(output_dir / "per_trace_metrics.csv", trace_metrics)
-    write_csv(output_dir / "by_network_type.csv", network_rows)
+    write_csv(output_dir / "by_network_type.csv", trace_group_rows)
     plot_qoe_distribution(trace_metrics, output_dir / "qoe_distribution.png")
-    plot_network_qoe(network_rows, output_dir / "qoe_by_network_type.png")
-    plot_network_rebuffer(network_rows, output_dir / "rebuffer_by_network_type.png")
+    plot_trace_group_qoe(trace_group_rows, output_dir / "qoe_by_network_type.png")
+    plot_trace_group_rebuffer(trace_group_rows, output_dir / "rebuffer_by_network_type.png")
 
     if args.copy_logs:
         copy_raw_logs(input_dir, output_dir)
